@@ -79,7 +79,10 @@ export const actualizarAlmacenamiento = async (cantidad, id_alm, tipo) => {
     }
 
     if (tipo == 'salida') {
-        let query = `UPDATE almacenamiento SET cantidad_alm = '0' WHERE id_almacenamiento = ?`;
+
+        let cantidadFinal = cantidad || 0; 
+
+        let query = `UPDATE almacenamiento SET cantidad_alm = ${cantidadFinal} WHERE id_almacenamiento = ?`;
         await pool.query(query, [id_alm]);
     }
 };

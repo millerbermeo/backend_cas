@@ -33,7 +33,7 @@ CREATE TABLE `actividades` (
   `nombre_act` varchar(30) DEFAULT NULL,
   `estado_actividad` enum('asignada','terminada') DEFAULT 'asignada',
   `lugar_actividad` int(11) DEFAULT NULL,
-  `fecha_actividad` date DEFAULT current_timestamp(),
+  `fecha_actividad` date,
   `hora_inicial` time NOT NULL,
   `hora_final` time NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
