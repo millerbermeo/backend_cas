@@ -1,17 +1,17 @@
 import { pool } from "../database/conexion.js";
 
-// Resto de tu código aquí
+
 
 
 export const agregarActividad = async (req, res) => {
     try {
         const { rol } = req.user;
 
-        // Verificar si el usuario tiene el rol de administrador
+ 
         if (rol === 'administrador') {
             const { lugar_actividad, fecha_actividad, usuarios, elementos, hora_inicial, hora_final } = req.body;
 
-            // Generar un nombre de actividad aleatorio
+     
             const nombre_act = `actividad_${fecha_actividad}` ;
 
             // Iniciar Transaccion
@@ -42,12 +42,12 @@ export const agregarActividad = async (req, res) => {
             if (elementos && elementos.length > 0) {
                 for (const elemento of elementos) {
                     const { elemento_id, cantidad } = elemento;
-                    // Restar la cantidad del elemento en la tabla correspondiente
+  
                     await pool.query(
                         'UPDATE elementos SET cantidad = cantidad - ? WHERE id_elemento = ?',
                         [cantidad, elemento_id]
                     );
-                    // Insertar la relación en la tabla intermedia
+
                     await pool.query(
                         'INSERT INTO elementos_actividades (fk_elemento, fk_actividad) VALUES (?, ?)',
                         [elemento_id, id_actividad]
@@ -55,13 +55,13 @@ export const agregarActividad = async (req, res) => {
                 }
             }
 
-            // Confirmar
+
             await pool.query('COMMIT');
 
             res.status(201).json({ success: true, message: 'Actividad con usuarios y elementos agregada exitosamente' });
         }
     } catch (error) {
-        // Revertir en caso de error
+
         await pool.query('ROLLBACK');
 
         console.error('Error al insertar actividad con usuarios y elementos:', error);
@@ -94,7 +94,8 @@ export const agregarActividad = async (req, res) => {
             const rol = req.user.rol;
             if (rol === 'administrador') {
                 const id = req.params.id;
-                // Obtener el estado actual de la actividad
+   
+                
                 const estadoActualQuery = "SELECT estado_actividad FROM actividades WHERE id_actividad = ?";
                 const [estadoActualResult] = await pool.query(estadoActualQuery, [id]);
                 if (estadoActualResult.length === 0) {

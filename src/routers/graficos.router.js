@@ -4,7 +4,7 @@ import { listarAlmCantidad, listarMovMesY, residuoListarTipo } from "../controll
 
 const router = Router()
 
-router.get('/listarMovimientosMes', validarToken, listarMovMesY)
+router.post('/listarMovimientosMes', validarToken, listarMovMesY)
 router.get('/listarTipos', validarToken, residuoListarTipo)
 router.get('/listarAlm', validarToken, listarAlmCantidad)
 

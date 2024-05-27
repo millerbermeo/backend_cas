@@ -25,8 +25,8 @@ export const obtenerAlmacenamientoId = async (id_residuo) => {
     if (result.length > 0) {
         return result[0].fk_alm;
     } else {
-        // Manejar el caso en el que no se encuentre ningún resultado
-        return null; // O puedes lanzar un error, dependiendo de tu lógica de negocio
+
+        return null; 
     }
 };
 
@@ -36,8 +36,8 @@ export const obtenerCantidad = async (id_residuo) => {
     if (result.length > 0) {
         return result[0].cantidad;
     } else {
-        // Manejar el caso en el que no se encuentre ningún resultado
-        return null; // O puedes lanzar un error, dependiendo de tu lógica de negocio
+
+        return null; 
     }
 };
 
@@ -51,8 +51,8 @@ export const actualizarCantidadResiduo = async (cantidad, id_residuo, tipo) => {
     }
 
     if (tipo == 'salida') {
-        // Asegurarse de que la cantidad no sea nula; si lo es, establecerla en 0
-        let cantidadFinal = cantidad || 0; // Esto asignará 0 a cantidadFinal si cantidad es nula o indefinida
+
+        let cantidadFinal = cantidad || 0; 
     
         let query = `UPDATE residuos SET cantidad = ${cantidadFinal} WHERE id_residuo = ?`;
         await pool.query(query, [id_residuo]);
@@ -105,7 +105,7 @@ export const registrarMovimiento = async (req, res) => {
             return res.status(HTTP_STATUS.unauthorized).json({ 'message': ERROR_MESSAGE.unauthorized });
         }
 
-        //variables del body
+
         const { id_residuo, cantidad, usuario_adm, fk_actividad } = req.body;
 
         const errors = validationResult(req);
@@ -113,29 +113,29 @@ export const registrarMovimiento = async (req, res) => {
             return res.status(400).json({ errors: errors.array() });
         }
 
-        // Iniciar transacción
+   
         await pool.query('START TRANSACTION');
 
         let id_alm = await obtenerAlmacenamientoId(id_residuo);
         console.log(id_alm);
 
 
-        // Realizar todas las operaciones dentro de la transacción
+
         await actualizarCantidadResiduo(cantidad, id_residuo, "entrada");
         await registrarMovSql(cantidad, usuario_adm, id_residuo, fk_actividad);
         await actualizarAlmacenamiento(cantidad, id_alm, "entrada");
         // await actualizarActividad(fk_actividad);
 
 
-        // Confirmar transacción
+
         await pool.query('COMMIT');
 
         return res.status(HTTP_STATUS.ok).json({ 'message': 'Movimiento registrado correctamente' });
     } catch (error) {
-        // Manejo de errores
+   
         console.error('Error en registrarMovimiento:', error);
 
-        // Si ocurre un error, hacer rollback para revertir los cambios
+    
         await pool.query('ROLLBACK');
 
         return res.status(HTTP_STATUS.internalServerError).json({ 'message': ERROR_MESSAGE.internalServerError });
@@ -238,7 +238,6 @@ export const registrarResiduo = async (req, res) => {
         let query_1 = `INSERT INTO residuos (nombre_residuo, residuo, tipo_residuo, cantidad, unidad_medida, fk_alm) VALUES (?, ?, ?, 0, ?, ?)`;
 
 
-        // Ejecutar la consulta SQL
 
         let [result] = await pool.query(query_1, [nombre_residuo, residuo, tipo_residuo, unidad_medida, fk_alm]);
 
@@ -250,7 +249,7 @@ export const registrarResiduo = async (req, res) => {
 
 
     } catch (error) {
-        // Manejo de errores
+
         console.error('Error en registrarMovimiento:', error);
         return res.status(HTTP_STATUS.internalServerError).json({ 'message': ERROR_MESSAGE.internalServerError });
     }
@@ -264,7 +263,7 @@ export const buscarResiduoId2 = async (req, res) => {
 
         const rol = req.user.rol;
 
-        // Validar autorización del usuario
+
         if (rol !== 'administrador') {
             return res.status(HTTP_STATUS.unauthorized).json({ 'message': ERROR_MESSAGE.unauthorized });
         }
@@ -423,12 +422,12 @@ export const registrarEmpresas = async (req, res) => {
 
         const rol = req.user.rol;
 
-        // Validar autorización del usuario
+    
         if (rol !== 'administrador') {
             return res.status(HTTP_STATUS.unauthorized).json({ 'message': ERROR_MESSAGE.unauthorized });
         }
 
-        //variables del body
+     
         const { nombre_empresa, descripcion_empresa, contacto_empresa } = req.body;
 
         let query = 'INSERT into empresas_recoleccion (nombre_empresa, descripcion_empresa, contacto_empresa) VALUES (?, ?, ?)'
@@ -442,7 +441,7 @@ export const registrarEmpresas = async (req, res) => {
 
 
     } catch (error) {
-        // Manejo de errores
+      
         console.error('Error en registrar Almacenamiento:', error);
         return res.status(HTTP_STATUS.internalServerError).json({ 'message': ERROR_MESSAGE.internalServerError });
     }
@@ -506,7 +505,7 @@ export const listarMovimientos = async (req, res) => {
             LEFT JOIN 
                 empresas_recoleccion e ON m.destino = e.id_empresa
             ORDER BY 
-                m.id_movimiento DESC`; // Ordenar por el ID del movimiento de forma descendente
+                m.id_movimiento DESC`; 
 
         let [result] = await pool.query(query);
 
