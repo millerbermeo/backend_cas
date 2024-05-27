@@ -99,3 +99,35 @@ export const listarAlmCantidad = async (req, res) => {
         return res.status(500).json({ 'message': 'Error: ' + e });
     }
 }
+
+
+export const selectX = async (req, res) => {
+    try {
+        const { rol } = req.user;
+
+        if (rol === 'administrador') {
+            const query = `
+                SELECT r.unidad_medida, SUM(cantidad) as total 
+                FROM residuos r 
+                GROUP BY unidad_medida 
+                ORDER BY total DESC
+             
+            `;
+
+      
+
+            const [result] = await pool.query(query);
+
+            if (result.length > 0) {
+                return res.status(200).json(result);
+            } else {
+                return res.status(404).json({ message: 'No se encontraron registros' });
+            }
+        } else {
+            return res.status(403).json({ message: 'Error: usuario no autorizado' });
+        }
+    } catch (e) {
+        return res.status(500).json({ message: 'Error: ' + e });
+    }
+};
+
