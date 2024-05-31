@@ -9,7 +9,7 @@ export const agregarActividad = async (req, res) => {
 
  
         if (rol === 'administrador') {
-            const { lugar_actividad, fecha_actividad, usuarios, elementos, hora_inicial, hora_final } = req.body;
+            const { lugar_actividad, fecha_actividad, usuarios, elementos} = req.body;
 
      
             const nombre_act = `actividad_${fecha_actividad}` ;
@@ -19,8 +19,8 @@ export const agregarActividad = async (req, res) => {
 
             // Insertar la actividad
             const [actividadResult] = await pool.query(
-                'INSERT INTO actividades (tipo_actividad, nombre_act, lugar_actividad, fecha_actividad, hora_inicial, hora_final) VALUES (1, ?, ?, ?, ?, ?)',
-                [nombre_act, lugar_actividad, fecha_actividad, hora_inicial, hora_final]
+                'INSERT INTO actividades (tipo_actividad, nombre_act, lugar_actividad, fecha_actividad) VALUES (1, ?, ?, ?)',
+                [nombre_act, lugar_actividad, fecha_actividad]
             );
 
             const id_actividad = actividadResult.insertId;
