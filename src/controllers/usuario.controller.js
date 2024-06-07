@@ -1,4 +1,11 @@
 import { pool } from "../database/conexion.js";
+import bcrypt from 'bcrypt';
+
+const encryptPassword = async (password) => {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    return hashedPassword;
+};
 
 export const registrarUsuario = async (req, res) => {
 
@@ -7,19 +14,26 @@ export const registrarUsuario = async (req, res) => {
         const rol = req.user.rol;
         if (rol === 'administrador') {
 
+
+
             const { nombre, apellidos, identificacion, email, rol } = req.body;
+
+            let pass = await encryptPassword(identificacion)
+
+            console.log(pass)
+
             const query = "INSERT INTO usuarios (nombre, apellidos, identificacion, email, rol, password) VALUES (?, ?, ?, ?, ?, ?)";
-            let [result] = await pool.query(query, [nombre, apellidos, identificacion, email, rol, identificacion]);
+            let [result] = await pool.query(query, [nombre, apellidos, identificacion, email, rol, pass]);
 
             if (result.affectedRows > 0) {
                 return res.status(200).json({ 'message': 'Usuario registrado exitosamente' });
             } else {
-                return res.status(404).json({ 'message': 'No se encontraron registros de usuarios' }); 
+                return res.status(404).json({ 'message': 'No se encontraron registros de usuarios' });
             }
 
 
         } else {
-            return res.status(403).json({ 'message': 'Error: usuario no autorizado'}); 
+            return res.status(403).json({ 'message': 'Error: usuario no autorizado' });
         }
 
 
@@ -82,7 +96,7 @@ export const buscarUsuarioPorIdentificacion = async (req, res) => {
 
             const identificacion = req.params.id;
 
-            const query = "SELECT * FROM usuarios WHERE identificacion = ?";
+            const query = "SELECT * FROM usuarios WHERE id_usuario = ?";
 
             const [result] = await pool.query(query, [identificacion]);
 
@@ -108,11 +122,17 @@ export const editarUsuario = async (req, res) => {
 
             console.log(id)
 
+        
             const { nombre, apellidos, identificacion, email, rol, password } = req.body;
+
+            let pass = await encryptPassword(password)
+
+            console.log(pass)
+
 
             const query = "UPDATE usuarios SET nombre = ?, apellidos = ?, identificacion = ?, email = ?, rol = ?, password = ? WHERE id_usuario = ?";
 
-            const [result] = await pool.query(query, [nombre, apellidos, identificacion, email, rol, password, id]);
+            const [result] = await pool.query(query, [nombre, apellidos, identificacion, email, rol, pass, id]);
 
             if (result.affectedRows > 0) {
                 return res.status(200).json({ 'message': 'Usuario actualizado exitosamente' });
@@ -123,8 +143,8 @@ export const editarUsuario = async (req, res) => {
             return res.status(403).json({ 'message': 'Error: usuario no autorizado' });
         }
     } catch (e) {
-        return res.status(500).json({ 'message': 'Error: ' + e });
-    }
+        return res.status(500).json({ 'message': 'Error: ' + e });
+    }
 }
 
 

@@ -1,22 +1,34 @@
 import { pool } from '../database/conexion.js';
 import jswt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 export const ValidarUsuario = async (req, res) => {
-    try {
-      let { email, password } = req.body;
-      let sql = `select id_usuario, nombre, rol from usuarios where email = '${email}' and password = '${password}'`;
-      let [rows] = await pool.query(sql);
-  
-      if (rows.length > 0) {
-        let token = jswt.sign({ user: rows[0] }, process.env.SECRET, { expiresIn: process.env.TIME });
-        return res.status(200).json({ "message": "Usuario autorizado", "token": token, "rol": rows[0].rol, "nombre": rows[0].nombre });
+  try {
+    let { email, password } = req.body;
+
+    let sql = `SELECT id_usuario, nombre, rol, password FROM usuarios WHERE email = ?`;
+    let [rows] = await pool.query(sql, [email]);
+
+    console.log(rows)
+
+    if (rows.length > 0) {
+      const user = rows[0];
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      console.log("aaa",passwordMatch)
+
+      if (passwordMatch == true) {
+        let token = jswt.sign({ user: { id: user.id_usuario, nombre: user.nombre, rol: user.rol } }, process.env.SECRET, { expiresIn: process.env.TIME });
+        return res.status(200).json({ "message": "Usuario autorizado", "token": token, "rol": user.rol, "nombre": user.nombre });
       } else {
         return res.status(404).json({ "message": "Usuario no autorizado" });
       }
-    } catch (e) {
-      return res.status(500).json({ "messagee": e.message });
+    } else {
+      return res.status(404).json({ "message": "Usuario no autorizado" });
     }
-  };
+  } catch (e) {
+    return res.status(500).json({ "messagee": e.message });
+  }
+};
   
 
 
@@ -37,5 +49,5 @@ export const validarToken = async(req, res, next) => {
         }
     } catch (error) {
         return res.status(500).json({"message": error.message});
-    }
+}
 }
