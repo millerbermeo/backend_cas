@@ -18,7 +18,7 @@ export const ValidarUsuario = async (req, res) => {
 
       if (passwordMatch == true) {
         let token = jswt.sign({ user: { id: user.id_usuario, nombre: user.nombre, rol: user.rol } }, process.env.SECRET, { expiresIn: process.env.TIME });
-        return res.status(200).json({ "message": "Usuario autorizado", "token": token, "rol": user.rol, "nombre": user.nombre });
+        return res.status(200).json({ "message": "Usuario autorizado", "token": token, "rol": user.rol, "nombre": user.nombre, "id": user.id_usuario });
       } else {
         return res.status(404).json({ "message": "Usuario no autorizado" });
       }

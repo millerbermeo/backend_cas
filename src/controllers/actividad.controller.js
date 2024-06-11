@@ -70,6 +70,57 @@ export const agregarActividad = async (req, res) => {
 };
 
 
+
+export const registrarActividadElm = async (req, res) => {
+    try {
+        const { rol } = req.user;
+
+        if (rol === 'administrador') {
+            const { fecha_actividad, elementos } = req.body;
+
+            const nombre_act = `actividad_${fecha_actividad}`;
+
+            // Iniciar Transaccion
+            await pool.query('START TRANSACTION');
+
+            // Insertar la actividad
+            const [actividadResult] = await pool.query(
+                'INSERT INTO actividades (tipo_actividad, nombre_act,  estado_actividad, fecha_actividad) VALUES (?, ?, ?, ?)',
+                ['suministrar',nombre_act, 'terminada', fecha_actividad]
+            );
+
+            const id_actividad = actividadResult.insertId;
+
+            // Insertar elementos
+            if (elementos && elementos.length > 0) {
+                for (const elemento of elementos) {
+                    const { elemento_id, cantidad } = elemento;
+
+                    await pool.query(
+                        'UPDATE elementos SET cantidad = cantidad - ? WHERE id_elemento = ?',
+                        [cantidad, elemento_id]
+                    );
+
+                    await pool.query(
+                        'INSERT INTO elementos_actividades (fk_elemento, fk_actividad) VALUES (?, ?)',
+                        [elemento_id, id_actividad]
+                    );
+                }
+            }
+
+            await pool.query('COMMIT');
+
+            res.status(201).json({ success: true, message: 'Actividad con elementos agregada exitosamente' });
+        }
+    } catch (error) {
+        await pool.query('ROLLBACK');
+
+        console.error('Error al insertar actividad con elementos:', error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor' + error });
+    }
+};
+
+
     // export const actividadTerminada = async (req, res) => {
     //     try {
     //         const { rol } = req.user;
@@ -149,18 +200,17 @@ export const agregarActividad = async (req, res) => {
     };
 
     export const actividadListar = async (req, res) => {
-
         try {
             const { rol } = req.user;
     
             if (rol === 'administrador') {
+                let query = `SELECT actividades.*,
+                    areas.nombre_area AS nombre_lugar
+                    FROM actividades
+                    LEFT JOIN areas ON areas.id_lugar = actividades.lugar_actividad
+                    ORDER BY actividades.id_actividad DESC`;
     
-                let query = `select actividades.*,
-                areas.nombre_area AS nombre_lugar
-                from actividades
-                join areas on areas.id_lugar = actividades.lugar_actividad ORDER BY actividades.id_actividad DESC`;
-
-                let [result] = await pool.query(query)
+                let [result] = await pool.query(query);
     
                 if (result.length > 0) {
                     return res.status(200).json(result);
@@ -175,6 +225,7 @@ export const agregarActividad = async (req, res) => {
             return res.status(500).json({ 'message': 'Error: ' + e });
         }
     };
+    
 
 
     export const actividadActualizar = async (req, res) => {

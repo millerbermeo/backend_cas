@@ -2,7 +2,15 @@
 import crypto from 'crypto';
 import { pool } from '../database/conexion.js';
 import bcrypt from 'bcrypt';
+
 import { sendPasswordResetEmail } from './emailService.js';
+
+const encryptPassword = async (password) => {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    return hashedPassword;
+};
+
 
 export const requestPasswordReset = async (req, res) => {
   const { email } = req.body;
@@ -46,8 +54,11 @@ export const resetPassword = async (req, res) => {
       // Hashear la nueva contraseña
       // const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+
+      let pass = await encryptPassword(newPassword)
+
       // Actualizar la contraseña del usuario
-      let [result] = await pool.query('UPDATE usuarios SET password = ? WHERE email = ?', [newPassword, email]);
+      let [result] = await pool.query('UPDATE usuarios SET password = ? WHERE email = ?', [pass, email]);
 
       if (result.affectedRows > 0) {
           // Eliminar el registro de restablecimiento de contraseña

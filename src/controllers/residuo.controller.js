@@ -231,15 +231,15 @@ export const registrarResiduo = async (req, res) => {
         }
 
         //variables del body
-        const { nombre_residuo, residuo, tipo_residuo, unidad_medida, fk_alm } = req.body;
+        const { nombre_residuo, residuo, descripcion, tipo_residuo, unidad_medida, fk_alm } = req.body;
 
 
 
-        let query_1 = `INSERT INTO residuos (nombre_residuo, residuo, tipo_residuo, cantidad, unidad_medida, fk_alm) VALUES (?, ?, ?, 0, ?, ?)`;
+        let query_1 = `INSERT INTO residuos (nombre_residuo, residuo, tipo_residuo, descripcion, cantidad, unidad_medida, fk_alm) VALUES (?, ?, ?, ?, 0, ?, ?)`;
 
 
 
-        let [result] = await pool.query(query_1, [nombre_residuo, residuo, tipo_residuo, unidad_medida, fk_alm]);
+        let [result] = await pool.query(query_1, [nombre_residuo, residuo, tipo_residuo, descripcion, unidad_medida, fk_alm]);
 
         if (result.affectedRows > 0) {
             return res.status(HTTP_STATUS.ok).json({ 'message': 'Residuo registrado correctamente' });
@@ -351,7 +351,7 @@ export const actualizarResiduoId = async (req, res) => {
 
         let id = req.params.id
 
-        const { nombre_residuo, residuo, tipo_residuo, unidad_medida, fk_alm } = req.body;
+        const { nombre_residuo, residuo, tipo_residuo, descripcion, unidad_medida, fk_alm } = req.body;
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -359,7 +359,7 @@ export const actualizarResiduoId = async (req, res) => {
         }
 
 
-        let query = `UPDATE residuos SET nombre_residuo = '${nombre_residuo}', residuo = '${residuo}', tipo_residuo = '${tipo_residuo}', unidad_medida = '${unidad_medida}', fk_alm  = '${fk_alm}' WHERE id_residuo = ${id}`
+        let query = `UPDATE residuos SET nombre_residuo = '${nombre_residuo}', residuo = '${residuo}', tipo_residuo = '${tipo_residuo}', descripcion = '${descripcion}', unidad_medida = '${unidad_medida}', fk_alm  = '${fk_alm}' WHERE id_residuo = ${id}`
         let [result] = await pool.query(query)
 
         if (result.affectedRows > 0) {
