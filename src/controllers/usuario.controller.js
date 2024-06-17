@@ -16,14 +16,14 @@ export const registrarUsuario = async (req, res) => {
 
 
 
-            const { nombre, apellidos, identificacion, email, rol } = req.body;
+            const { nombre, apellidos, identificacion, telefono, email, rol } = req.body;
 
             let pass = await encryptPassword(identificacion)
 
             console.log(pass)
 
-            const query = "INSERT INTO usuarios (nombre, apellidos, identificacion, email, rol, password) VALUES (?, ?, ?, ?, ?, ?)";
-            let [result] = await pool.query(query, [nombre, apellidos, identificacion, email, rol, pass]);
+            const query = "INSERT INTO usuarios (nombre, apellidos, identificacion, telefono, email, rol, password) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            let [result] = await pool.query(query, [nombre, apellidos, identificacion, telefono, email, rol, pass]);
 
             if (result.affectedRows > 0) {
                 return res.status(200).json({ 'message': 'Usuario registrado exitosamente' });
@@ -119,17 +119,17 @@ export const editarUsuario = async (req, res) => {
         const rol = req.user.rol;
         if (rol === 'administrador') {
             const id = req.params.id;
-            const { nombre, apellidos, identificacion, email, rol, password } = req.body;
+            const { nombre, apellidos, identificacion, telefono, email, rol, password } = req.body;
 
             // Crear la consulta base para actualizar sin la contraseña
-            let query = "UPDATE usuarios SET nombre = ?, apellidos = ?, identificacion = ?, email = ?, rol = ? WHERE id_usuario = ?";
-            let queryParams = [nombre, apellidos, identificacion, email, rol, id];
+            let query = "UPDATE usuarios SET nombre = ?, apellidos = ?, identificacion = ?, telefono = ?, email = ?, rol = ? WHERE id_usuario = ?";
+            let queryParams = [nombre, apellidos, identificacion, telefono, email, rol, id];
 
             // Si se proporciona la contraseña, agregarla a la consulta y parámetros
             if (password) {
                 const pass = await encryptPassword(password);
-                query = "UPDATE usuarios SET nombre = ?, apellidos = ?, identificacion = ?, email = ?, rol = ?, password = ? WHERE id_usuario = ?";
-                queryParams = [nombre, apellidos, identificacion, email, rol, pass, id];
+                query = "UPDATE usuarios SET nombre = ?, apellidos = ?, identificacion = ?, telefono = ?, email = ?, rol = ?, password = ? WHERE id_usuario = ?";
+                queryParams = [nombre, apellidos, identificacion, telefono, email, rol, pass, id];
             }
 
             const [result] = await pool.query(query, queryParams);

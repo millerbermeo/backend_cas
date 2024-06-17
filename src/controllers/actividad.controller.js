@@ -201,9 +201,9 @@ export const registrarActividadElm = async (req, res) => {
 
     export const actividadListar = async (req, res) => {
         try {
-            const { rol } = req.user;
+            // const { rol } = req.user;
     
-            if (rol === 'administrador') {
+            // if (rol === 'administrador') {
                 let query = `SELECT actividades.*,
                     areas.nombre_area AS nombre_lugar
                     FROM actividades
@@ -218,9 +218,9 @@ export const registrarActividadElm = async (req, res) => {
                     return res.status(404).json({ 'message': 'No se encontraron registros de actividades' });
                 }
     
-            } else {
-                return res.status(403).json({ 'message': 'Error: usuario no autorizado' });
-            }
+            // } else {
+            //     return res.status(403).json({ 'message': 'Error: usuario no autorizado' });
+            // }
         } catch (e) {
             return res.status(500).json({ 'message': 'Error: ' + e });
         }
