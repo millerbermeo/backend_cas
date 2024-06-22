@@ -7,12 +7,10 @@ export const agregarActividad = async (req, res) => {
     try {
         const { rol } = req.user;
 
- 
         if (rol === 'administrador') {
-            const { lugar_actividad, fecha_actividad, usuarios, elementos} = req.body;
+            const { lugar_actividad, fecha_actividad, usuarios, elementos } = req.body;
 
-     
-            const nombre_act = `actividad_${fecha_actividad}` ;
+            const nombre_act = `actividad_${fecha_actividad}`;
 
             // Iniciar Transaccion
             await pool.query('START TRANSACTION');
@@ -35,39 +33,37 @@ export const agregarActividad = async (req, res) => {
                 }
             }
 
-
-            
-
             // Insertar elementos
             if (elementos && elementos.length > 0) {
                 for (const elemento of elementos) {
                     const { elemento_id, cantidad } = elemento;
-  
+
                     await pool.query(
                         'UPDATE elementos SET cantidad = cantidad - ? WHERE id_elemento = ?',
                         [cantidad, elemento_id]
                     );
 
                     await pool.query(
-                        'INSERT INTO elementos_actividades (fk_elemento, fk_actividad) VALUES (?, ?)',
-                        [elemento_id, id_actividad]
+                        'INSERT INTO elementos_actividades (fk_elemento, fk_actividad, cantidad) VALUES (?, ?, ?)',
+                        [elemento_id, id_actividad, cantidad]
                     );
                 }
             }
 
-
             await pool.query('COMMIT');
 
             res.status(201).json({ success: true, message: 'Actividad con usuarios y elementos agregada exitosamente' });
+        } else {
+            res.status(403).json({ message: 'Error: usuario no autorizado' });
         }
     } catch (error) {
-
         await pool.query('ROLLBACK');
 
         console.error('Error al insertar actividad con usuarios y elementos:', error);
         res.status(500).json({ success: false, message: 'Error interno del servidor' + error });
     }
 };
+
 
 
 
@@ -177,8 +173,8 @@ export const registrarActividadElm = async (req, res) => {
 
     export const actividadListarId = async (req, res) => {
         try {
-            const { rol } = req.user;
-            if (rol ==='administrador') {
+            // const { rol } = req.user;
+            // if (rol ==='administrador') {
                 const id_actividad = req.params.id;
                 const query = `select actividades.*,
                 areas.nombre_area AS nombre_lugar
@@ -191,9 +187,9 @@ export const registrarActividadElm = async (req, res) => {
                 } else {
                     return res.status(403).json({'message': `No se encontraron registros de actividades con el id ${id_actividad}`});
                 }
-            } else {
-                return res.status(403).json({'message': 'Error: usuario no autorizado'});
-            }
+            // } else {
+            //     return res.status(403).json({'message': 'Error: usuario no autorizado'});
+            // }
         } catch (error) {
             return res.status(500).json({'message': 'Error: ' + e})
         }
