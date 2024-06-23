@@ -169,7 +169,7 @@ export const selectResiduosMes = async (req, res) => {
 export const selecElementos = async (req, res) => {
     try {
         const { rol } = req.user;
-        const { year } = req.body;  // Obtener el año de los parámetros de consulta
+        const { year } = req.body;
 
         if (rol === 'administrador') {
             const query = `
@@ -202,13 +202,12 @@ export const selecElementos = async (req, res) => {
                 GROUP BY
                     e.nombre_elm, nombre_mes
                 ORDER BY
-                    nombre_mes, cantidad DESC;
+                    FIELD(nombre_mes, 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'), cantidad DESC;
             `;
 
             const [result] = await pool.query(query, [year]);
 
             if (result.length > 0) {
-                // Procesar los resultados para obtener los 3 elementos más utilizados por mes
                 const monthlyData = result.reduce((acc, item) => {
                     const { nombre_mes, nombre_elm, cantidad } = item;
                     if (!acc[nombre_mes]) {
@@ -218,7 +217,6 @@ export const selecElementos = async (req, res) => {
                     return acc;
                 }, {});
 
-                // Ordenar y limitar a los 3 primeros elementos por mes
                 Object.keys(monthlyData).forEach(mes => {
                     monthlyData[mes] = monthlyData[mes]
                         .sort((a, b) => b.cantidad - a.cantidad)
@@ -236,4 +234,5 @@ export const selecElementos = async (req, res) => {
         return res.status(500).json({ message: 'Error: ' + e });
     }
 };
+
     
