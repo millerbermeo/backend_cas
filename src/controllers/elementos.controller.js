@@ -1,5 +1,7 @@
 //CONTROLADOR SEBAS
 import { pool } from "../database/conexion.js";
+import { io } from "../../app.js";  
+
 
 export const listarElementos = async (req, res) => {
     try {
@@ -68,4 +70,33 @@ export const actualizarElemento = async (req, res) => {
     }
 };
 
+const verificarDisponibilidad = async () => {
+    const query = 'SELECT id_elemento, nombre_elm, tipo_elm, cantidad FROM elementos WHERE tipo_elm = "consumible" AND cantidad < 10';
 
+    try {
+        const [results] = await pool.query(query);
+
+        console.log("Resultados obtenidos:", results);
+
+        if (results.length === 0) {
+            console.log("no hay datos");
+            return;
+        }
+
+        results.forEach((elemento) => {
+            console.log("Enviando notificación para:", elemento);
+            io.emit('notificacion', {
+                id_elemento: elemento.id_elemento,
+                nombre_elm: elemento.nombre_elm,
+                tipo_elm: elemento.tipo_elm,
+                cantidad: elemento.cantidad,
+                // mensaje: `El stock del elemento ${elemento.nombre_elm} es menor a 10 unidades.`
+            });
+        });
+    } catch (err) {
+        console.error("Error ejecutando la consulta:", err);
+    }
+};
+
+// Configurar la verificación periódica
+setInterval(verificarDisponibilidad, 3000);

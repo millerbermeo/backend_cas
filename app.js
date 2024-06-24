@@ -9,8 +9,20 @@ import { swaggerUi, swaggerSpec } from './src/swagger.js';
 import Actividad from "./src/routers/actividad.router.js";
 import elemento from "./src/routers/elemento.router.js";
 import usuarios from "./src/routers/usuario.router.js";
+import http from 'http';
+import { Server } from 'socket.io';
+import { verificarDisponibilidad } from "./src/verificarDisponibilidad.js"; // Importa la función
+
 
 const app = express();
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -41,6 +53,13 @@ app.use('/elemento', elemento); // ruta acceder al controlador de sebas
 app.use('/actividades', Actividad); // ruta acceder al controlador de jose
 app.use('/grafico', graficos);
 
-app.listen(3000, () => {
+
+setInterval(verificarDisponibilidad, 3000);
+
+
+server.listen(3000, () => {
     console.log("escuchando en el puerto 3000");
 });
+
+
+export { io };
