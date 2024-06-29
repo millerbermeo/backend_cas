@@ -6,7 +6,8 @@ import {
     actividadListarId, 
     actividadActualizar, 
     actividadListarUsuarios, 
-    registrarActividadElm 
+    registrarActividadElm, 
+    actividadListarElementos
 } from "../controllers/actividad.controller.js"; 
 import { validarToken } from "../controllers/validator.controller.js";
 
@@ -214,5 +215,7 @@ router.put("/actualizarAct/:id", validarToken, actividadActualizar);
  *         description: Error en el servidor
  */
 router.get("/listarUsersAct/:id", actividadListarUsuarios);
+
+router.get("/listarUserElm/:id", actividadListarElementos);
 
 export default router;

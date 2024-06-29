@@ -279,4 +279,30 @@ export const registrarActividadElm = async (req, res) => {
             return res.status(500).json({ 'message': 'Error: ' + error.message });
         }
     };
+
+
+    export const actividadListarElementos = async (req, res) => {
+        try {
+            const id = req.params.id;
+    
+            let query = `
+                SELECT e.*, a.* 
+                FROM elementos_actividades ea
+                JOIN elementos e ON ea.fk_elemento = e.id_elemento
+                JOIN actividades a ON ea.fk_actividad = a.id_actividad
+                WHERE a.id_actividad = ?
+            `;
+            let [results] = await pool.query(query, [id]);
+    
+            if (results.length > 0) {
+                return res.status(200).json(results);
+            } else {
+                return res.status(404).json({ 'message': 'No se encontraron registros de elementos para esta actividad' });
+            }
+        } catch (error) {
+            console.error('DB Error:', error);
+            return res.status(500).json({ 'message': 'Error: ' + error.message });
+        }
+    };
+    
     
