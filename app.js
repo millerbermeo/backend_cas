@@ -12,6 +12,9 @@ import usuarios from "./src/routers/usuario.router.js";
 import http from 'http';
 import { Server } from 'socket.io';
 import { verificarDisponibilidad } from "./src/verificarDisponibilidad.js"; // Importa la función
+import almacenamiento from "./src/routers/almacenamiento.router.js"
+import empresas from "./src/routers/empresasRecoleccion.router.js"
+import tipos from "./src/routers/tipos_residuos.router.js"
 
 
 const app = express();
@@ -52,6 +55,10 @@ app.use('/residuo', residuo); // ruta acceder al controlador de miller
 app.use('/elemento', elemento); // ruta acceder al controlador de sebas
 app.use('/actividades', Actividad); // ruta acceder al controlador de jose
 app.use('/grafico', graficos);
+app.use('/almacenamiento', almacenamiento);
+app.use('/empresas_recoleccion', empresas);
+app.use('/tipos_residuos', tipos);
+
 
 
 setInterval(verificarDisponibilidad, 3000);
