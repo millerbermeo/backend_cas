@@ -230,11 +230,11 @@ export const registrarActividadElm = async (req, res) => {
     
             if (rol === 'administrador') {
                 const id_actividad = req.params.id;
-                const { nombre_act, estado_actividad, fecha_actividad } = req.body;
+                const { nombre_act, estado_actividad, fecha_actividad, nombre_lugar } = req.body;
     
-                const sql = `UPDATE actividades SET nombre_act = ?, estado_actividad = ?, lugar_actividad = lugar_actividad, fecha_actividad = ? WHERE id_actividad = ?`;
+                const sql = `UPDATE actividades SET nombre_act = ?, estado_actividad = ?, lugar_actividad = ?, fecha_actividad = ? WHERE id_actividad = ?`;
     
-                await pool.query(sql, [nombre_act, estado_actividad, fecha_actividad, id_actividad]);
+                await pool.query(sql, [nombre_act, estado_actividad, nombre_lugar, fecha_actividad, id_actividad]);
     
                 res.status(200).json({ success: true, message: 'Actividad Actualizada.' });
             } else {
