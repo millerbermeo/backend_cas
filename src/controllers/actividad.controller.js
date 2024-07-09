@@ -286,12 +286,12 @@ export const registrarActividadElm = async (req, res) => {
             const id = req.params.id;
     
             let query = `
-                SELECT e.*, a.* 
-                FROM elementos_actividades ea
-                JOIN elementos e ON ea.fk_elemento = e.id_elemento
-                JOIN actividades a ON ea.fk_actividad = a.id_actividad
-                WHERE a.id_actividad = ?
-            `;
+            SELECT e.*, ea.cantidad, a.*
+            FROM elementos_actividades ea
+            JOIN elementos e ON ea.fk_elemento = e.id_elemento
+            JOIN actividades a ON ea.fk_actividad = a.id_actividad
+            WHERE a.id_actividad = ?
+        `;
             let [results] = await pool.query(query, [id]);
     
             if (results.length > 0) {

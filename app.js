@@ -15,6 +15,8 @@ import { verificarDisponibilidad } from "./src/verificarDisponibilidad.js"; // I
 import almacenamiento from "./src/routers/almacenamiento.router.js"
 import empresas from "./src/routers/empresasRecoleccion.router.js"
 import tipos from "./src/routers/tipos_residuos.router.js"
+import areas from "./src/routers/areas.router.js"
+import lugares from "./src/routers/lugares.router.js"
 
 
 const app = express();
@@ -58,7 +60,8 @@ app.use('/grafico', graficos);
 app.use('/almacenamiento', almacenamiento);
 app.use('/empresas_recoleccion', empresas);
 app.use('/tipos_residuos', tipos);
-
+app.use('/areas', areas);
+app.use('/lugares', lugares);
 
 
 setInterval(verificarDisponibilidad, 3000);
