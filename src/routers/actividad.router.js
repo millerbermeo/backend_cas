@@ -7,7 +7,8 @@ import {
     actividadActualizar, 
     actividadListarUsuarios, 
     registrarActividadElm, 
-    actividadListarElementos
+    actividadListarElementos,
+    actividadListar2
 } from "../controllers/actividad.controller.js"; 
 import { validarToken } from "../controllers/validator.controller.js";
 
@@ -34,6 +35,7 @@ const router = express.Router();
  *         description: Error en el servidor
  */
 router.get("/listar", actividadListar);
+router.get("/listarDos", actividadListar2);
 
 /**
  * @swagger

@@ -8,19 +8,19 @@ const encryptPassword = async (password) => {
 };
 
 export const registrarUsuario = async (req, res) => {
-
     try {
-
         const rol = req.user.rol;
         if (rol === 'administrador') {
-
-
-
             const { nombre, apellidos, identificacion, telefono, email, rol } = req.body;
 
-            let pass = await encryptPassword(identificacion)
+            // Verificar si el email o la identificación ya existen
+            const [existingUser] = await pool.query("SELECT * FROM usuarios WHERE email = ? OR identificacion = ?", [email, identificacion]);
+            if (existingUser.length > 0) {
+                return res.status(400).json({ 'message': 'El email o la identificación ya están en uso' });
+            }
 
-            console.log(pass)
+            // Encriptar la identificación para usarla como contraseña
+            let pass = await encryptPassword(identificacion);
 
             const query = "INSERT INTO usuarios (nombre, apellidos, identificacion, telefono, email, rol, password) VALUES (?, ?, ?, ?, ?, ?, ?)";
             let [result] = await pool.query(query, [nombre, apellidos, identificacion, telefono, email, rol, pass]);
@@ -28,20 +28,16 @@ export const registrarUsuario = async (req, res) => {
             if (result.affectedRows > 0) {
                 return res.status(200).json({ 'message': 'Usuario registrado exitosamente' });
             } else {
-                return res.status(404).json({ 'message': 'No se encontraron registros de usuarios' });
+                return res.status(404).json({ 'message': 'No se pudieron registrar los datos del usuario' });
             }
-
-
         } else {
             return res.status(403).json({ 'message': 'Error: usuario no autorizado' });
         }
-
-
     } catch (e) {
         return res.status(500).json({ 'message': 'Error: ' + e });
-
     }
-}
+};
+
 
 
 
@@ -120,6 +116,12 @@ export const editarUsuario = async (req, res) => {
         if (rol === 'administrador') {
             const id = req.params.id;
             const { nombre, apellidos, identificacion, telefono, email, rol, password } = req.body;
+
+            // Verificar si el nuevo email o identificación ya están en uso por otro usuario
+            const [existingUser] = await pool.query("SELECT * FROM usuarios WHERE (email = ? OR identificacion = ?) AND id_usuario != ?", [email, identificacion, id]);
+            if (existingUser.length > 0) {
+                return res.status(400).json({ 'message': 'Error: El email o la identificación ya están en uso por otro usuario' });
+            }
 
             // Crear la consulta base para actualizar sin la contraseña
             let query = "UPDATE usuarios SET nombre = ?, apellidos = ?, identificacion = ?, telefono = ?, email = ?, rol = ? WHERE id_usuario = ?";
