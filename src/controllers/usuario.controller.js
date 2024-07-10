@@ -13,10 +13,16 @@ export const registrarUsuario = async (req, res) => {
         if (rol === 'administrador') {
             const { nombre, apellidos, identificacion, telefono, email, rol } = req.body;
 
-            // Verificar si el email o la identificación ya existen
-            const [existingUser] = await pool.query("SELECT * FROM usuarios WHERE email = ? OR identificacion = ?", [email, identificacion]);
-            if (existingUser.length > 0) {
-                return res.status(400).json({ 'message': 'El email o la identificación ya están en uso' });
+            // Verificar si el email ya existe
+            const [existingEmail] = await pool.query("SELECT * FROM usuarios WHERE email = ?", [email]);
+            if (existingEmail.length > 0) {
+                return res.status(400).json({ 'message': 'El email ya está en uso' });
+            }
+
+            // Verificar si la identificación ya existe
+            const [existingIdentificacion] = await pool.query("SELECT * FROM usuarios WHERE identificacion = ?", [identificacion]);
+            if (existingIdentificacion.length > 0) {
+                return res.status(400).json({ 'message': 'La identificación ya está en uso' });
             }
 
             // Encriptar la identificación para usarla como contraseña
@@ -118,10 +124,6 @@ export const editarUsuario = async (req, res) => {
             const { nombre, apellidos, identificacion, telefono, email, rol, password } = req.body;
 
             // Verificar si el nuevo email o identificación ya están en uso por otro usuario
-            const [existingUser] = await pool.query("SELECT * FROM usuarios WHERE (email = ? OR identificacion = ?) AND id_usuario != ?", [email, identificacion, id]);
-            if (existingUser.length > 0) {
-                return res.status(400).json({ 'message': 'Error: El email o la identificación ya están en uso por otro usuario' });
-            }
 
             // Crear la consulta base para actualizar sin la contraseña
             let query = "UPDATE usuarios SET nombre = ?, apellidos = ?, identificacion = ?, telefono = ?, email = ?, rol = ? WHERE id_usuario = ?";
