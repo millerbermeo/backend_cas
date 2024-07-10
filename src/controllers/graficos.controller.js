@@ -275,6 +275,59 @@ export const obtenerMovimientosPorMesYAnio = async (req, res) => {
     }
 };
 
+export const obtenerMovimientosPorMesYAnio2 = async (req, res) => {
+    try {
+        const { mes, anio, tipoMovimiento, tipoResiduo } = req.body;
+        const rol = req.user.rol;
+
+        if (rol === 'administrador') {
+            let query = `
+                SELECT 
+                    r.*,
+                    t.tipo_residuo as tipo,
+                    a.nombre_alm as alm,
+                    m.tipo_movimiento,
+                    SUM(m.cantidad) as cantidad_total,
+                    COUNT(m.id_movimiento) as total_movimientos
+                FROM movimientos m
+                JOIN residuos r ON m.fk_residuo = r.id_residuo
+                JOIN tipos t ON r.residuo = t.id_tipo
+                JOIN almacenamiento a ON r.fk_alm = a.id_almacenamiento
+                WHERE MONTH(m.fecha) = ? AND YEAR(m.fecha) = ?
+            `;
+
+            const queryParams = [mes, anio];
+
+            if (tipoMovimiento) {
+                query += " AND m.tipo_movimiento = ?";
+                queryParams.push(tipoMovimiento);
+            }
+
+            if (tipoResiduo) {
+                query += " AND t.id_tipo= ?";
+                queryParams.push(tipoResiduo);
+            }
+
+            query += `
+                GROUP BY r.id_residuo, m.tipo_movimiento
+                ORDER BY r.nombre_residuo;
+            `;
+
+            const [result] = await pool.query(query, queryParams);
+
+            if (result.length > 0) {
+                return res.status(200).json(result);
+            } else {
+                return res.status(404).json({ message: 'No se encontraron registros de movimientos' });
+            }
+        } else {
+            return res.status(403).json({ message: 'Error: usuario no autorizado' });
+        }
+    } catch (e) {
+        return res.status(500).json({ message: 'Error: ' + e.message });
+    }
+};
+
 
 
 export const obtenerElementosPorTipo = async (req, res) => {
