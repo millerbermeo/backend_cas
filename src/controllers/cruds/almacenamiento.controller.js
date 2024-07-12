@@ -1,11 +1,9 @@
 import { pool } from "../../database/conexion.js";
 
-
 export const listarAlmacenamientos = async (req, res) => {
     try {
         const rol = req.user.rol;
         if (rol === 'administrador') {
-            // Realizar la consulta para obtener la lista de almacenamientos
             const query = "SELECT * FROM almacenamiento";
             const [result] = await pool.query(query);
 
@@ -24,10 +22,10 @@ export const listarAlmacenamientos = async (req, res) => {
 
 export const registrarAlmacenamiento = async (req, res) => {
     try {
-        const { nombre_alm, cantidad_alm = 0 } = req.body;
+        const { nombre_alm, cantidad_alm = 0, tipo_area } = req.body;
 
         // Realizar la inserción en la base de datos
-        await pool.query("INSERT INTO almacenamiento (nombre_alm, cantidad_alm) VALUES (?, ?)", [nombre_alm, cantidad_alm]);
+        await pool.query("INSERT INTO almacenamiento (nombre_alm, cantidad_alm, tipo_area) VALUES (?, ?, ?)", [nombre_alm, cantidad_alm, tipo_area]);
 
         res.status(201).json({ message: "Almacenamiento registrado exitosamente" });
     } catch (error) {
@@ -57,10 +55,10 @@ export const eliminarAlmacenamiento = async (req, res) => {
 export const actualizarAlmacenamiento = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre_alm, cantidad_alm } = req.body;
+        const { nombre_alm, cantidad_alm, tipo_area } = req.body;
 
         // Realizar la actualización en la base de datos
-        await pool.query("UPDATE almacenamiento SET nombre_alm = ?, cantidad_alm = ? WHERE id_almacenamiento = ?", [nombre_alm, cantidad_alm, id]);
+        await pool.query("UPDATE almacenamiento SET nombre_alm = ?, cantidad_alm = ?, tipo_area = ? WHERE id_almacenamiento = ?", [nombre_alm, cantidad_alm, tipo_area, id]);
 
         res.status(200).json({ message: "Almacenamiento actualizado exitosamente" });
     } catch (error) {
