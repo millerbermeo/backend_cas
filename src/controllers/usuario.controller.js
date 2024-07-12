@@ -73,7 +73,7 @@ export const listarUsuariosTrabajadores = async (req, res) => {
     try {
         const rol = req.user.rol;
         if (rol === 'administrador') {
-            const query = "SELECT * FROM usuarios WHERE rol IN ('pasante', 'operario')";
+            const query = "SELECT * FROM usuarios WHERE rol IN ('pasante', 'operario', 'aprendiz')";
             const [result] = await pool.query(query);
 
             if (result.length > 0) {
