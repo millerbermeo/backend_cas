@@ -15,6 +15,24 @@ export const listarLugares = async (req, res) => {
     }
 };
 
+export const listarLugaresId = async (req, res) => {
+
+    const id = req.params.id;
+
+    try {
+        const query = "SELECT *, a.nombre_area as area FROM lugares l JOIN areas a ON l.fk_area = a.id_lugar WHERE a.id_lugar = ?";
+        const [result] = await pool.query(query, [id]);
+
+        if (result.length > 0) {
+            return res.status(200).json(result); 
+        } else {
+            return res.status(404).json({ 'message': 'No se encontraron registros de lugares' });
+        }
+    } catch (error) {
+        return res.status(500).json({ 'message': 'Error: ' + error }); 
+    }
+};
+
 export const listarAreas = async (req, res) => {
     try {
         const query = "SELECT * FROM areas";
